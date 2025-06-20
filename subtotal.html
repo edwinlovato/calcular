@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Ecuador - SRI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-dark-900 min-h-screen transition-colors duration-300">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Calculadora</h1>
+            <button id="themeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white">
+                <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+            </button>
+        </header>
+
+        <!-- Tabs -->
+        <div class="mb-8">
+            <div class="flex border-b border-gray-300 dark:border-gray-700">
+                <button id="subtotalTab" class="py-2 px-4 font-medium text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400">De Subtotal a Total</button>
+                <button id="totalTab" class="py-2 px-4 font-medium text-gray-600 dark:text-gray-400">De Total a Subtotal</button>
+            </div>
+        </div>
+
+        <!-- Subtotal to Total Form -->
+        <div id="subtotalToTotal" class="bg-white dark:bg-dark-800 rounded-lg shadow-md p-6 mb-8 transition-colors duration-300">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Calcular Total desde Subtotal</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="subtotal" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subtotal</label>
+                    <input type="number" id="subtotal" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                </div>
+                <div>
+                    <label for="ivaPercent" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">IVA (%)</label>
+                    <select id="ivaPercent" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                        <option value="0">0%</option>
+                        <option value="5">5%</option>
+                        <option value="8">8%</option>
+                        <option value="12">12%</option>
+                        <option value="14">14%</option>
+                        <option value="15" selected>15%</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="discountPercent" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descuento (%)</label>
+                    <input type="number" id="discountPercent" min="0" max="100" value="0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                </div>
+                <div class="flex items-end">
+                    <button id="calculateTotal" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">Calcular Total</button>
+                </div>
+            </div>
+            <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-md">
+                <h3 class="text-lg font-medium text-gray-800 dark:text-white mb-2">Resultado</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">IVA:</p>
+                        <p id="ivaAmount" class="text-lg font-semibold text-gray-800 dark:text-white">$0.00</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Descuento:</p>
+                        <p id="discountAmount" class="text-lg font-semibold text-gray-800 dark:text-white">$0.00</p>
+                    </div>
+                    <div class="col-span-2">
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Total:</p>
+                        <p id="totalResult" class="text-2xl font-bold text-blue-600 dark:text-blue-400">$0.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total to Subtotal Form -->
+        <div id="totalToSubtotal" class="bg-white dark:bg-dark-800 rounded-lg shadow-md p-6 mb-8 hidden transition-colors duration-300">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Calcular Subtotal desde Total</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="totalInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Total</label>
+                    <input type="number" id="totalInput" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                </div>
+                <div>
+                    <label for="ivaPercentReverse" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">IVA (%)</label>
+                    <select id="ivaPercentReverse" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                        <option value="0">0%</option>
+                        <option value="5">5%</option>
+                        <option value="8">8%</option>
+                        <option value="12">12%</option>
+                        <option value="14">14%</option>
+                        <option value="15" selected>15%</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="discountPercentReverse" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descuento (%)</label>
+                    <input type="number" id="discountPercentReverse" min="0" max="100" value="0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                </div>
+                <div class="flex items-end">
+                    <button id="calculateSubtotal" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">Calcular Subtotal</button>
+                </div>
+            </div>
+            <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-md">
+                <h3 class="text-lg font-medium text-gray-800 dark:text-white mb-2">Resultado</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Subtotal:</p>
+                        <p id="subtotalResult" class="text-2xl font-bold text-blue-600 dark:text-blue-400">$0.00</p>
+                    </div>
+                    <div class="col-span-2">
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Fórmula utilizada:</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 italic">Subtotal = Total / (1 + IVA% - Descuento%)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+
+        // Check for saved user preference or use dark mode as default
+        if (localStorage.getItem('color-theme') === 'light' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+            document.documentElement.classList.remove('dark');
+            sunIcon.classList.add('hidden');
+            moonIcon.classList.remove('hidden');
+        } else {
+            document.documentElement.classList.add('dark');
+            sunIcon.classList.remove('hidden');
+            moonIcon.classList.add('hidden');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            // Toggle icons
+            sunIcon.classList.toggle('hidden');
+            moonIcon.classList.toggle('hidden');
+
+            // Toggle theme
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            }
+        });
+
+        // Tab switching
+        const subtotalTab = document.getElementById('subtotalTab');
+        const totalTab = document.getElementById('totalTab');
+        const subtotalToTotal = document.getElementById('subtotalToTotal');
+        const totalToSubtotal = document.getElementById('totalToSubtotal');
+
+        subtotalTab.addEventListener('click', () => {
+            subtotalTab.classList.add('text-blue-600', 'dark:text-blue-400', 'border-blue-600', 'dark:border-blue-400');
+            subtotalTab.classList.remove('text-gray-600', 'dark:text-gray-400');
+            totalTab.classList.remove('text-blue-600', 'dark:text-blue-400', 'border-blue-600', 'dark:border-blue-400');
+            totalTab.classList.add('text-gray-600', 'dark:text-gray-400');
+            subtotalToTotal.classList.remove('hidden');
+            totalToSubtotal.classList.add('hidden');
+        });
+
+        totalTab.addEventListener('click', () => {
+            totalTab.classList.add('text-blue-600', 'dark:text-blue-400', 'border-blue-600', 'dark:border-blue-400');
+            totalTab.classList.remove('text-gray-600', 'dark:text-gray-400');
+            subtotalTab.classList.remove('text-blue-600', 'dark:text-blue-400', 'border-blue-600', 'dark:border-blue-400');
+            subtotalTab.classList.add('text-gray-600', 'dark:text-gray-400');
+            totalToSubtotal.classList.remove('hidden');
+            subtotalToTotal.classList.add('hidden');
+        });
+
+        // Calculate Total from Subtotal
+        const calculateTotalBtn = document.getElementById('calculateTotal');
+        const subtotalInput = document.getElementById('subtotal');
+        const ivaPercentSelect = document.getElementById('ivaPercent');
+        const discountPercentInput = document.getElementById('discountPercent');
+        const ivaAmountDisplay = document.getElementById('ivaAmount');
+        const discountAmountDisplay = document.getElementById('discountAmount');
+        const totalResultDisplay = document.getElementById('totalResult');
+
+        calculateTotalBtn.addEventListener('click', () => {
+            const subtotal = parseFloat(subtotalInput.value) || 0;
+            const ivaPercent = parseFloat(ivaPercentSelect.value) || 0;
+            const discountPercent = parseFloat(discountPercentInput.value) || 0;
+
+            // Calculate IVA
+            const ivaAmount = subtotal * (ivaPercent / 100);
+            
+            // Calculate discount
+            const discountAmount = subtotal * (discountPercent / 100);
+            
+            // Calculate total
+            const total = subtotal + ivaAmount - discountAmount;
+            
+            // Display results
+            ivaAmountDisplay.textContent = `$${ivaAmount.toFixed(2)}`;
+            discountAmountDisplay.textContent = `$${discountAmount.toFixed(2)}`;
+            totalResultDisplay.textContent = `$${total.toFixed(2)}`;
+        });
+
+        // Calculate Subtotal from Total
+        const calculateSubtotalBtn = document.getElementById('calculateSubtotal');
+        const totalInput = document.getElementById('totalInput');
+        const ivaPercentReverseSelect = document.getElementById('ivaPercentReverse');
+        const discountPercentReverseInput = document.getElementById('discountPercentReverse');
+        const subtotalResultDisplay = document.getElementById('subtotalResult');
+
+        calculateSubtotalBtn.addEventListener('click', () => {
+            const total = parseFloat(totalInput.value) || 0;
+            const ivaPercent = parseFloat(ivaPercentReverseSelect.value) || 0;
+            const discountPercent = parseFloat(discountPercentReverseInput.value) || 0;
+
+            // Calculate subtotal using the formula: Subtotal = Total / (1 + IVA% - Descuento%)
+            const denominator = 1 + (ivaPercent / 100) - (discountPercent / 100);
+            
+            // Avoid division by zero
+            if (denominator <= 0) {
+                subtotalResultDisplay.textContent = "Error";
+                return;
+            }
+            
+            const subtotal = total / denominator;
+            
+            // Display result
+            subtotalResultDisplay.textContent = `$${subtotal.toFixed(2)}`;
+        });
+
+        // Initialize with some calculations
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set default values and trigger calculations
+            subtotalInput.value = "100.00";
+            calculateTotalBtn.click();
+            
+            totalInput.value = "115.00";
+            calculateSubtotalBtn.click();
+        });
+    </script>
+</body>
+</html>
